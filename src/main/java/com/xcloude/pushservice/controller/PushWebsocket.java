@@ -2,23 +2,17 @@ package com.xcloude.pushservice.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.xcloude.pushservice.entity.PushRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value = "/login")
 @Component
@@ -36,7 +30,6 @@ public class PushWebsocket {
   public void onOpen(Session session) {
     this.session = session;
     logger.info("客户端加入，当前会话数" + onlineCount.incrementAndGet());
-    sendMessage("SUCCESS");
   }
 
   @OnClose
@@ -62,7 +55,7 @@ public class PushWebsocket {
     if ("push".equals(request.getType())) {
       if (StringUtils.isEmpty(request.getTo())) {
         for (PushWebsocket item : webSocketSet.values()) {
-          item.sendMessage(message);
+          item.sendMessage(request.getData());
         }
       } else {
         webSocketSet.get(request.getTo()).sendMessage(request.getName() + "发送给你：" + request.getData());
