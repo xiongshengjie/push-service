@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script>
+        ws = new WebSocket("ws://127.0.0.1:8080/login");
+
+        function login() {
+            ws.onopen = function () {
+                console.log("连接成功");
+                ws.send(JSON.stringify(generateRequest("login")));
+            };
+            ws.onmessage = function (e) {
+                console.log("收到服务端的消息：" + e.data);
+            };
+            ws.onclose = function () {
+                console.log("断开连接");
+            };
+            ws.onerror = function () {
+                console.log("发生错误")
+            };
+        }
+
+        function sendMessage() {
+            ws.send(generateRequest("push"));
+        }
+
+        function generateRequest(type) {
+            var pushRequest = {};
+            pushRequest.type = type;
+            pushRequest.name = $("#name").val();
+            pushRequest.to = $("#to").val();
+            pushRequest.data = $("#data").val();
+            return pushRequest;
+        }
+    </script>
+</head>
+<body>
+<input id="name" placeholder="用户名"/>
+<button onclick="login()">登录</button>
+<br/>
+<input id="to" placeholder="发送给"/>
+<input id="data" placeholder="内容"/>
+<br/>
+<button onclick="sendMessage()">发送</button>
+</body>
+</html>
